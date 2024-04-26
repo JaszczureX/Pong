@@ -67,6 +67,8 @@ function table() {
   }
 }
 
+document.addEventListener("keydown", checkKey);
+
 function checkKey(e) {
   e = e || window.Event;
   if (playerY < 0) {
@@ -82,7 +84,6 @@ function checkKey(e) {
   }
 }
 
-document.onkeydown = checkKey;
 
 function game() {
   table();
