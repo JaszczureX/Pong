@@ -1,5 +1,6 @@
 const canv = document.querySelector("canvas");
 const ctx = canv.getContext("2d");
+const result = document.querySelector("result");
 
 canv.width = 1000;
 canv.height = 500;
@@ -30,8 +31,22 @@ const linewidth = 6;
 
 // speed
 
+let botPoints = 0;
+let playerPoints = 0;
+
+// points
 let ballSpeedX = 2;
 let ballSpeedY = 2;
+
+function addPointToPlayer() {
+  playerPoints++;
+  result.innerHTML = `dada  `;
+}
+
+function addPointToBot() {
+  botPoints++;
+  result.innerHTML = `${playerPoints} : ${botPoints}`;
+}
 
 function playerPaddel() {
   ctx.fillStyle = "#ffffff";
@@ -50,10 +65,28 @@ function ball() {
   ballX += ballSpeedX;
   ballY += ballSpeedY;
 
-  if (ballY + ballSize <= 20 || ballY + ballSize >= ch) {
+  if (ballY + ballSize == 10 || ballY + ballSize >= ch) {
     ballSpeedY = ballSpeedY * -1;
-  } else if (ballX + ballSize <= 20 || ballX + ballSize == cw) {
-    ballSpeedX = ballSpeedX * -1;
+  } else if (ballX + ballSize == 80 || ballX + ballSize == cw - 80) {
+    ballX = cw / 2 - ballSize / 2;
+    if (ballSpeedX > 0) {
+      ballSpeedX = -ballSpeedX;
+    } else {
+      ballSpeedX = -ballSpeedX;
+      addPointToPlayer();
+    }
+  } else if (
+    ballX <= playerX + ballSize &&
+    ballY + ballSize / 2 >= playerY &&
+    ballY + ballSize / 2 <= playerY + paddelHeight
+  ) {
+    ballSpeedX = -ballSpeedX;
+  } else if (
+    ballX + ballSize >= botX &&
+    ballY + ballSize / 2 >= botY &&
+    ballY + ballSize / 2 <= botY + paddelHeight
+  ) {
+    ballSpeedX = -ballSpeedX;
   }
 }
 
@@ -67,23 +100,45 @@ function table() {
   }
 }
 
-document.addEventListener("keydown", checkKey);
+let keys = {};
 
-function checkKey(e) {
-  e = e || window.Event;
+document.addEventListener("keydown", function (e) {
+  keys[e.keyCode] = true;
+});
+
+document.addEventListener("keyup", function (e) {
+  keys[e.keyCode] = false;
+});
+
+function checkKeys() {
+  if (keys[87]) {
+    // klawisz w górę dla gracza
+    playerY -= 2;
+  } else if (keys[83]) {
+    // klawisz w dół dla gracza
+    playerY += 2;
+  }
+  if (keys[38]) {
+    // klawisz w górę dla bota
+    botY -= 2;
+  } else if (keys[40]) {
+    // klawisz w dół dla bota
+    botY += 2;
+  }
+
   if (playerY < 0) {
     playerY = 0;
   } else if (playerY > 400) {
     playerY = 400;
-  } else {
-    if (e.keyCode == "38") {
-      playerY -= 10;
-    } else if (e.keyCode == "40") {
-      playerY += 10;
-    }
+  }
+  if (botY < 0) {
+    botY = 0;
+  } else if (botY > 400) {
+    botY = 400;
   }
 }
 
+// sprawdzanie stanu klawiszy co 10 milisekund
 
 function game() {
   table();
@@ -93,3 +148,4 @@ function game() {
 }
 
 setInterval(game, 1000 / 120);
+setInterval(checkKeys, 1000 / 120);
